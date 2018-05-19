@@ -1,16 +1,41 @@
 import requests,json
 import os
 
-def send(lots):
-    url = 'http://pi2tucultivo.dis.eafit.edu.co/'
-    for image in os.listdir("images/"):
-        file = {'file':open('images/' + image, 'rb')}
-        sended = False
-        while not sended:
-            r = request.post(url, files=file)
-            if r.status_code == 200:
-                sended = True
-                print("sended image %s, original: %s" %(image, renamed))
+def send(lots, n_plants):
+    images_paths = os.listdir(".")
+    n_images = len(images_paths)
+    if n_plants != n_images:
+        print("el numero total de plantas no es igual al numero total de fotos")
+        print("numero de plantas ingresadas: %d" % n_plants)
+        print("el numero de fotos guardadas es %d" % n_images)
+    else:
+        url = 'http://pi2tucultivo.dis.eafit.edu.co/'
+        cont = 0
+        #print(lots)
+        #print(lots["1"])
+        #print(len(lots["1"]["1"]))
+        for i in lots.keys():
+            for j in lots[i].keys():
+                for k in range(lots[i][j]):
+                    name = i + "_" + j + "_" + "1" + "_" +str(k+1) + ".jpg"
+                    print(name)
+                    # file = open(images_paths[cont], 'rw')
+                    # file.write('send/' + name)
+                    # file.close()
+
+        send_images_paths = os.listdir("send/")
+        for image in send_images_paths:
+            file = {'file':open('send/' + image, 'rb')}
+            sended = False
+            while not sended:
+                
+            # file = {'file':open('images/' + image, 'rb')}
+            # sended = False
+            # while not sended:
+            #     r = request.post(url, files=file)
+            #     if r.status_code == 200:
+            #         sended = True
+            #         print("sended image %s, original: %s" %(image, renamed))
 
 #
 # files ={'file':open('1_1_1_2.jpg', 'rb')}
@@ -31,10 +56,10 @@ if __name__ == "__main__":
         grooves = {}
         for j in range(int(n_grooves)):
             id_groove = input("Ingrese id del surco numero %d (en orden cronologio de tomada de fotos) >> " % (j+1))
-            n_plants = input("Ingrese el numero de plantas del surco %d >> " % (int(id_groove)))
+            n_plants = int(input("Ingrese el numero de plantas del surco %d >> " % (int(id_groove))))
             grooves[id_groove] = n_plants
             n_images += n_plants
         lots[id_lot] = grooves
     #print(lots)
     #print(list(lots.keys())[0])
-    send(lots)
+    send(lots, n_images)
