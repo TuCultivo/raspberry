@@ -1,8 +1,9 @@
 import requests,json
 import os
+from PIL import Image
 
-def send(lots, n_plants):
-    images_paths = os.listdir(".")
+def send(lots, n_plants, id_farm):
+    images_paths = os.listdir("images/")
     n_images = len(images_paths)
     if n_plants != n_images:
         print("el numero total de plantas no es igual al numero total de fotos")
@@ -11,42 +12,33 @@ def send(lots, n_plants):
     else:
         url = 'http://pi2tucultivo.dis.eafit.edu.co/'
         cont = 0
-        #print(lots)
-        #print(lots["1"])
-        #print(len(lots["1"]["1"]))
+
         for i in lots.keys():
             for j in lots[i].keys():
                 for k in range(lots[i][j]):
-                    name = i + "_" + j + "_" + "1" + "_" +str(k+1) + ".jpg"
-                    print(name)
-                    # file = open(images_paths[cont], 'rw')
-                    # file.write('send/' + name)
-                    # file.close()
+                    name = str(id_farm) + "_" + i + "_" + j + "_" +str(k+1) + ".jpg"
+                    file = Image.open('images/' + images_paths[cont])
+                    file.save('send/' + name)
+                    cont += 1
 
-        send_images_paths = os.listdir("send/")
-        for image in send_images_paths:
+        for image in os.listdir("send"):
             file = {'file':open('send/' + image, 'rb')}
             sended = False
             while not sended:
-                
-            # file = {'file':open('images/' + image, 'rb')}
-            # sended = False
-            # while not sended:
-            #     r = request.post(url, files=file)
-            #     if r.status_code == 200:
-            #         sended = True
-            #         print("sended image %s, original: %s" %(image, renamed))
+                r = requests.post(url, files=file)
+                if r.status_code == 200:
+                    sended = True
+                else:
+                    print("imagen no pudo ser enviada, reintentando")
 
-#
-# files ={'file':open('1_1_1_2.jpg', 'rb')}
-# enviado=False
-# while enviado==False:
-#     r=requests.post(url, files=files)
-#     if r.status_code == 200:
-#         enviado=True
-#         print(r.status_code)
+            try:
+               os.remove('send/' + image)
+               #os.remove('images/' + image)
+            except: pass
+
 
 if __name__ == "__main__":
+    id_farm = int(input("Ingrese id del cultivo >> "))
     n_images = 0
     n_lots = input("Va a ingresar imagenes de cuantos lotes? >> ")
     lots = {}
@@ -60,6 +52,4 @@ if __name__ == "__main__":
             grooves[id_groove] = n_plants
             n_images += n_plants
         lots[id_lot] = grooves
-    #print(lots)
-    #print(list(lots.keys())[0])
-    send(lots, n_images)
+    send(lots, n_images, id_farm)
